@@ -9,6 +9,7 @@ import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
 import models.User
 import models.daos.UserDAO
 import play.api.libs.concurrent.Execution.Implicits._
+import reactivemongo.bson.BSONObjectID
 
 import scala.concurrent.Future
 
@@ -55,7 +56,7 @@ class UserServiceImpl @Inject() (userDAO: UserDAO) extends UserService {
         ))
       case None => // Insert a new user
         userDAO.save(User(
-          userID = UUID.randomUUID(),
+          userID = Some(BSONObjectID.generate),
           loginInfo = profile.loginInfo,
           firstName = profile.firstName,
           lastName = profile.lastName,

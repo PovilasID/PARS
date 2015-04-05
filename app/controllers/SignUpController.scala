@@ -15,6 +15,7 @@ import play.api.i18n.Messages
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
 import play.api.mvc.Action
+import reactivemongo.bson.BSONObjectID
 
 import scala.concurrent.Future
 
@@ -47,7 +48,7 @@ class SignUpController @Inject() (
         case None =>
           val authInfo = passwordHasher.hash(data.password)
           val user = User(
-            userID = UUID.randomUUID(),
+            userID = Some(BSONObjectID.generate),
             loginInfo = loginInfo,
             firstName = Some(data.firstName),
             lastName = Some(data.lastName),

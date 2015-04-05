@@ -4,6 +4,9 @@ import java.util.UUID
 
 import com.mohiva.play.silhouette.api.{ Identity, LoginInfo }
 import play.api.libs.json.Json
+import reactivemongo.bson.{BSONDocument, BSONDocumentWriter, BSONObjectID}
+import play.modules.reactivemongo.json.BSONFormats._
+
 
 /**
  * The user object.
@@ -17,7 +20,7 @@ import play.api.libs.json.Json
  * @param avatarURL Maybe the avatar URL of the authenticated provider.
  */
 case class User(
-  userID: UUID,
+  userID: Option[BSONObjectID],
   loginInfo: LoginInfo,
   firstName: Option[String],
   lastName: Option[String],
@@ -28,10 +31,14 @@ case class User(
 /**
  * The companion object.
  */
-object User {
+object User extends DataAccess[User]{
+  import play.modules.reactivemongo.json.BSONFormats._
+
+  def collectionName = "users"
 
   /**
    * Converts the [User] object to Json and vice versa.
    */
   implicit val jsonFormat = Json.format[User]
-}
+
+  }

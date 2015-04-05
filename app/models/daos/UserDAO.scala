@@ -4,6 +4,7 @@ import java.util.UUID
 
 import com.mohiva.play.silhouette.api.LoginInfo
 import models.User
+import reactivemongo.bson.BSONObjectID
 
 import scala.concurrent.Future
 

@@ -5,9 +5,12 @@ import java.util.UUID
 import com.mohiva.play.silhouette.api.LoginInfo
 import models.User
 import models.daos.UserDAOImpl._
+import reactivemongo.bson.BSONObjectID
+
+
 
 import scala.collection.mutable
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Give access to the user object.
@@ -33,7 +36,7 @@ class UserDAOImpl extends UserDAO {
    * @return The found user or None if no user for the given ID could be found.
    */
   def find(userID: UUID) = {
-    Future.successful(users.get(userID))
+    Future.successful(users.get(BSONObjectID(userID.toString())))  //THIS IS @EVIL!
   }
 
   /**
@@ -43,10 +46,12 @@ class UserDAOImpl extends UserDAO {
    * @return The saved user.
    */
   def save(user: User) = {
-    users += (user.userID -> user)
+    users += (user.userID.get -> user)
+    User.DAsave(user)
     Future.successful(user)
   }
 }
+
 
 /**
  * The companion object.
@@ -56,5 +61,5 @@ object UserDAOImpl {
   /**
    * The list of users.
    */
-  val users: mutable.HashMap[UUID, User] = mutable.HashMap()
+  val users: mutable.HashMap[BSONObjectID, User] = mutable.HashMap()
 }
