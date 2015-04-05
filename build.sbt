@@ -8,7 +8,7 @@ import scalariform.formatter.preferences._
 // Play settings
 //********************************************************
 
-name := "play-silhouette-angular-seed"
+name := "PARS"
 
 version := "2.1-SNAPSHOT"
 
