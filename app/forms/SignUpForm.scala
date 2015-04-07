@@ -17,8 +17,18 @@ object SignUpForm {
       "firstName" -> nonEmptyText,
       "lastName" -> nonEmptyText,
       "email" -> email,
-      "password" -> nonEmptyText
+      "password" -> tuple(
+        "main" -> text(minLength=8, maxLength=16),
+        "confirm" -> text
+      ).verifying(
+          // Add an additional constraint: both passwords must match
+          "Passwords don't match", password => password._1 == password._2
+        ).transform(
+      { case (main, confirm) => main },
+      (main: String) => ("", "")
+      )
     )(Data.apply)(Data.unapply)
+
   )
 
   /**

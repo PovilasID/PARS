@@ -6,8 +6,10 @@ import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.api.{ Identity, LoginInfo }
 import play.api.libs.json.Json
 import play.api.libs.json._
-import reactivemongo.bson.{BSONDocument, BSONDocumentWriter, BSONObjectID}
+import reactivemongo.bson.{Macros, BSONDocument, BSONDocumentWriter, BSONObjectID}
 import play.modules.reactivemongo.json.BSONFormats._
+import reactivemongo.bson.Macros.Annotations.Key
+
 
 
 /**
@@ -22,7 +24,7 @@ import play.modules.reactivemongo.json.BSONFormats._
  * @param avatarURL Maybe the avatar URL of the authenticated provider.
  */
 case class User(
-  userID: Option[BSONObjectID],
+  @Key("_id") userID: Option[BSONObjectID], //@TODO annotations are slow... need better method
   loginInfo: LoginInfo,
   firstName: Option[String],
   lastName: Option[String],
@@ -44,5 +46,7 @@ object User extends DataAccess[User]{
    * Converts the [User] object to Json and vice versa.
    */
   implicit val jsonFormat:Format[User] = Json.format[User]
+  //implicit val bson = Macros.handler[User]
 
-  }
+
+}

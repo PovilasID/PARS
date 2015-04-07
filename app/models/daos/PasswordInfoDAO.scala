@@ -13,6 +13,8 @@ import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable
 import scala.concurrent.Future
+import reactivemongo.api.Cursor
+
 
 import models.User
 
@@ -32,15 +34,15 @@ class PasswordInfoDAO extends DelegableAuthInfoDAO[PasswordInfo] {
    * @param authInfo The password info to save.
    * @return The saved password info.
    */
-  def save(loginInfo: LoginInfo, authInfo: PasswordInfo): Future[PasswordInfo] = {
+  def save(loginInfo: LoginInfo, authInfo: PasswordInfo): Future[PasswordInfo] = { //@TODO PasswordInfo needs be serializable
     data += (loginInfo -> authInfo)
     collection.update(
-      JsObject(Seq("loginInfo" -> Json.toJson(loginInfo))),
-      JsObject(Seq("$set" -> JsObject(Seq( "passwordInfo" -> JsObject(Seq(
+      Json.obj("loginInfo" -> Json.toJson(loginInfo)),
+      Json.obj("$set" -> Json.obj( "passwordInfo" -> Json.obj(
         "hasher" -> JsString(authInfo.hasher),
         "password" -> JsString(authInfo.password),
         "salt" -> JsString(authInfo.salt.getOrElse(""))
-      ))))))
+      )))
     )
     Future.successful(authInfo)
   }
@@ -53,7 +55,19 @@ class PasswordInfoDAO extends DelegableAuthInfoDAO[PasswordInfo] {
    * @return The retrieved password info or None if no password info could be retrieved for the given login info.
    */
   def find(loginInfo: LoginInfo): Future[Option[PasswordInfo]] = {
-    Future.successful(data.get(loginInfo))
+    val passList = collection
+      .find(Json.obj("loginInfo" -> Json.toJson(loginInfo)))
+      .one[JsObject]
+
+    val futureAuth: Future[Option[PasswordInfo]] = passList.map { passDetails =>
+      Some(PasswordInfo(
+        passDetails.get.\("passwordInfo").\("hasher").toString().replace("\"", ""), //@TODO PasswordInfo REALLY needs be serializable
+        passDetails.get.\("passwordInfo").\("password").toString().replace("\"", ""),
+        Some(passDetails.get.\("passwordInfo").\("salt").toString().replace("\"", ""))
+      ))
+    }
+
+    futureAuth
   }
 }
 

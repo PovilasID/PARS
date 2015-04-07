@@ -53,12 +53,26 @@
         </div>
 
         <div class="form-group has-feedback">
-            @helper.inputPassword(form("password"),
+            @helper.inputPassword(form("password.main"),
                 'placeholder -> "Password",
                 'class -> "form-control input-lg",
                 '_label -> "",
                 'required -> "",
                 Symbol("ng-model") -> "password"
+            )
+            <span class="ion-key form-control-feedback"></span>
+            <div class="help-block text-danger" ng-if="form.password.$dirty" ng-messages="form.password.$error">
+                <div ng-message="required">@Messages("error.required")</div>
+            </div>
+        </div>
+
+        <div class="form-group has-feedback">
+            @helper.inputPassword(form("password.confirm"),
+            'placeholder -> "Repeate the password",
+            'class -> "form-control input-lg",
+            '_label -> "",
+            'required -> "",
+            Symbol("ng-model") -> "password2"
             )
             <span class="ion-key form-control-feedback"></span>
             <div class="help-block text-danger" ng-if="form.password.$dirty" ng-messages="form.password.$error">
